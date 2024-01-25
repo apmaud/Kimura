@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import sun from "../../assets/sun.svg";
 import moon from "../../assets/moon.svg";
+import { useNavigate } from 'react-router-dom';
 
 
 const Navbar = () => {
+  const navigate = useNavigate();
 
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
@@ -24,7 +26,7 @@ const Navbar = () => {
   }, [theme]);
 
   return (
-    <div className="navbar bg-base-200 rounded-md shadow-lg mb-5">
+    <div className="navbar bg-base-200 rounded-md shadow-lg mb-5 sticky top-0 z-30 bg-opacity-90">
       <div className="flex-1">
         <a className="btn btn-ghost text-xl">Kimura</a>
         <p className="">Jiu-Jitsu</p>
@@ -47,11 +49,11 @@ const Navbar = () => {
           <li>
             <details>
               <summary>
-                Account
+                Information
               </summary>
               <ul className="p-2 bg-base-100 rounded-t-none">
-                <li><a>Link 1</a></li>
-                <li><a>Link 2</a></li>
+                <li><a onClick={() => navigate("/auth")}>Sign In</a></li>
+                <li><a>About</a></li>
               </ul>
             </details>
           </li>

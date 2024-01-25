@@ -10,12 +10,8 @@ function App() {
     <div className='h-full min-h-screen min-w-screen flex-col'>
       <Navbar />
       <Routes>
-        <Route 
-          path="/" 
-          element={
-            <LandingPage />
-          }
-        />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
       </Routes>
     </div>
   )
