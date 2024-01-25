@@ -6,7 +6,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="hero min-h-screen bg-base-200 rounded-md shadow-lg">
+    <div className="hero min-h-screen bg-base-100 rounded-md shadow-lg">
       <div className="hero-content text-center">
         <div className="max-w-md">
           <h1 className="text-5xl font-bold">Welcome to Kimura</h1>

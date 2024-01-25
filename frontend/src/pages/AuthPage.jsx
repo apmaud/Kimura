@@ -1,15 +1,19 @@
 import React from 'react'
+import Login from '../components/auth/Login'
 
 const AuthPage = () => {
   return (
-    <div className="card w-96 text-primary-content">
-        <div className="card-body">
-            <h2 className="card-title">Card title!</h2>
-            <p>If a dog chews shoes whose shoes does he choose?</p>
-            <div className="card-actions justify-end">
-            <button className="btn">Buy Now</button>
-            </div>
-        </div>
+    <div className="hero min-h-full p-10">
+      <label className="swap swap-flip text-9xl">
+        
+        {/* this hidden checkbox controls the state */}
+        <input type="checkbox" />
+        
+        <div className="swap-on">Register</div>
+
+        <div className="swap-off">Login</div>
+      </label>
+  
     </div>
   )
 }

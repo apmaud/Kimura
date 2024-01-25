@@ -7,7 +7,7 @@ import LandingPage from './pages/LandingPage'
 function App() {
 
   return (
-    <div className='h-full min-h-screen min-w-screen flex-col'>
+    <div className='h-full flex-col'>
       <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
