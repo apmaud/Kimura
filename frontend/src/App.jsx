@@ -1,15 +1,24 @@
-import { useState } from 'react'
 import './App.css'
+import { Routes, Route } from 'react-router-dom'
+import AuthPage from './pages/AuthPage'
+import Navbar from './components/overlay/Navbar'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <h1 className='text-3xl font-bold underline'>
-        Hello world!
-      </h1>
-    </>
+    <div className='h-full min-h-full'>
+      <Navbar />
+      <Routes>
+        <Route 
+          path="/" 
+          element={
+            <>
+              <AuthPage />
+            </>
+          } 
+        />
+      </Routes>
+    </div>
   )
 }
 
