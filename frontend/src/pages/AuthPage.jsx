@@ -1,19 +1,22 @@
 import React from 'react'
 import Login from '../components/auth/Login'
+import Register from '../components/auth/Register'
 
 const AuthPage = () => {
   return (
-    <div className="hero min-h-full p-10">
-      <label className="swap swap-flip text-9xl">
-        
-        {/* this hidden checkbox controls the state */}
-        <input type="checkbox" />
-        
-        <div className="swap-on">Register</div>
+    <div className="hero min-h-full p-5">
+      <div role="tablist" className="tabs tabs-lifted flex-col">
+        <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="Login" defaultChecked/>
+        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+          <Login />
+        </div>
 
-        <div className="swap-off">Login</div>
-      </label>
-  
+        <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="Register" />
+        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+          <Register />
+        </div>
+
+      </div>
     </div>
   )
 }
