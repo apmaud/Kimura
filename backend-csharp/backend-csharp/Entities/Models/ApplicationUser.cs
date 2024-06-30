@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace backend_csharp.Entities.Models;
 
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : IdentityUser<int>
 {
     [PersonalData]
     [StringLength(60, ErrorMessage = "Name can't be longer than 60 characters")]

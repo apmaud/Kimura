@@ -8,7 +8,7 @@ namespace backend_csharp.Data;
 
                 
 
-public class DataContext : IdentityDbContext<ApplicationUser, IdentityRole<string>, string>
+public class DataContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
 {
     public DataContext(DbContextOptions<DataContext> options): base(options)
     {
