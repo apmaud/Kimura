@@ -1,6 +1,10 @@
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using backend_csharp.Data;
+using backend_csharp.Dto;
 using backend_csharp.Entities.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend_csharp.Repositories.PositionRepository;
@@ -14,43 +18,126 @@ public class PositionRepository : IPositionRepository
         this.DataContext = dataContext;
     }
 
-    public async Task<IEnumerable<Position>> GetPositions()
+    public async Task<IEnumerable<Position>> GetAllPositions()
     {
         return await DataContext.Positions.ToListAsync();
     }
 
-    public async Task<Position> AddPosition(Position position)
+    public async Task<Position> GetPositionById(int positionId)
     {
-        var result = await DataContext.Positions.AddAsync(position);
-        await DataContext.SaveChangesAsync();
-        return result.Entity;
+        return DataContext.Positions.Where(e => e.Id == positionId).FirstOrDefault();
     }
 
-    /*public IQueryable<Position> FindAll()
+    public async Task<IEnumerable<Position>> GetPositionsByUserId(int id)
     {
-        return DataContext.Set<Position>().AsNoTracking();
+        return await DataContext.Positions.Where(e => e.UserId == id).ToListAsync();
     }
 
-    public IQueryable<Position> FindByCondition(Expression<Func<Position, bool>> expression)
+    public async Task<IEnumerable<PositionEdge>> GetEdgesByUserId(int id)
     {
-        return DataContext.Set<Position>().Where(expression).AsNoTracking();
+        return await DataContext.PositionEdges.Where(e => e.UserId == id).ToListAsync();
     }
 
-
-    public void Create(Position position)
+    public bool AddPosition(PositionDto positionDto)
     {
-        DataContext.Set<Position>().Add(position);
+        var applicationUserEntity =
+            DataContext.Users.Where(u => u.Id == positionDto.UserId).FirstOrDefault();
+        var newPosition = new Position()
+        {
+            Name = positionDto.Name,
+            Description = positionDto.Description,
+            UserId = positionDto.UserId,
+            User = applicationUserEntity,
+        };
+        DataContext.Add(newPosition);
+        return Save();
     }
 
-    public void Update(Position position)
+    public bool AddPositionWithEdges(PositionDto positionDto)
     {
-        DataContext.Set<Position>().Update(position);
+        var userEntity =
+            DataContext.Users.Where(u => u.Id == positionDto.UserId).FirstOrDefault();
+        
+        var sourceIds = positionDto.SourceIds;
+        var targetIds = positionDto.TargetIds;
+        
+        var newPosition = new Position()
+        {
+            Name = positionDto.Name,
+            Description = positionDto.Description,
+            UserId = positionDto.UserId,
+            User = userEntity,
+        };
+        
+        if (sourceIds.Count > 0)
+        {
+            var sourcePositions = DataContext.Positions.Where(p => sourceIds.Contains(p.Id)).ToList();
+            foreach (var source in sourcePositions)
+            {
+                var edge = new PositionEdge()
+                {
+                    SourceId = source.Id,
+                    TargetId = newPosition.Id,
+                    SourcePosition = source,
+                    TargetPosition = newPosition,
+                };
+                source.Targets.Add(edge);
+                newPosition.Sources.Add(edge);
+            }
+            
+        }
+
+        if (targetIds.Count > 0)
+        {
+            var targetPositions = DataContext.Positions.Where(p => targetIds.Contains(p.Id)).ToList();
+            foreach (var target in targetPositions)
+            {
+                var edge = new PositionEdge()
+                {
+                    SourceId = newPosition.Id,
+                    TargetId = target.Id,
+                    SourcePosition = newPosition,
+                    TargetPosition = target,
+                };
+                target.Sources.Add(edge);
+                newPosition.Targets.Add(edge);
+            }
+        }
+
+        DataContext.Add(newPosition);
+        
+        return Save();
+    }
+    
+    public bool CreateEdge(Position sourcePosition, Position targetPosition)
+    {
+        var relation = new PositionEdge()
+        {
+            SourceId = sourcePosition.Id,
+            TargetId = targetPosition.Id,
+            SourcePosition = sourcePosition,
+            TargetPosition = targetPosition,
+        };
+        
+        DataContext.Add(relation);
+        
+        DataContext.Positions.Where(p => p.Id == sourcePosition.Id).FirstOrDefault().Targets.Add(relation);
+        DataContext.Positions.Where(p => p.Id == targetPosition.Id).FirstOrDefault().Sources.Add(relation);
+
+        return Save();
     }
 
-    public void Delete(Position position)
+    public bool AddRelationToExistingPosition(PositionEdge positionEdge, Position position)
     {
-        DataContext.Set<Position>().Remove(position);
-    }*/
-
+        return Save();
+    }
+    
+    public bool Save()
+    {
+        var saved = DataContext.SaveChanges();
+        return saved > 0 ? true : false;
+    }
+    
+    
 
 }

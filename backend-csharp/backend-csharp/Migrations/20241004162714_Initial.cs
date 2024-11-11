@@ -33,7 +33,8 @@ namespace backend_csharp.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    FirstName = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
+                    LastName = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -161,30 +162,56 @@ namespace backend_csharp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "position",
+                name: "Positions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
-                    Description = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    ApplicationUserId = table.Column<int>(type: "integer", nullable: true),
-                    PositionId = table.Column<int>(type: "integer", nullable: true)
+                    Description = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    ApplicationUserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_position", x => x.Id);
+                    table.PrimaryKey("PK_Positions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_position_AspNetUsers_ApplicationUserId",
+                        name: "FK_Positions_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PositionEdges",
+                columns: table => new
+                {
+                    SourceId = table.Column<int>(type: "integer", nullable: false),
+                    TargetId = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    ApplicationUserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PositionEdges", x => new { x.SourceId, x.TargetId });
                     table.ForeignKey(
-                        name: "FK_position_position_PositionId",
-                        column: x => x.PositionId,
-                        principalTable: "position",
-                        principalColumn: "Id");
+                        name: "FK_PositionEdges_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PositionEdges_Positions_SourceId",
+                        column: x => x.SourceId,
+                        principalTable: "Positions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PositionEdges_Positions_TargetId",
+                        column: x => x.TargetId,
+                        principalTable: "Positions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -225,14 +252,19 @@ namespace backend_csharp.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_position_ApplicationUserId",
-                table: "position",
+                name: "IX_PositionEdges_ApplicationUserId",
+                table: "PositionEdges",
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_position_PositionId",
-                table: "position",
-                column: "PositionId");
+                name: "IX_PositionEdges_TargetId",
+                table: "PositionEdges",
+                column: "TargetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Positions_ApplicationUserId",
+                table: "Positions",
+                column: "ApplicationUserId");
         }
 
         /// <inheritdoc />
@@ -254,10 +286,13 @@ namespace backend_csharp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "position");
+                name: "PositionEdges");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Positions");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

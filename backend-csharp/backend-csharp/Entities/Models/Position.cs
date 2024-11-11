@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace backend_csharp.Entities.Models;
 
 
-[Table("position")]
+[Table("Positions")]
 public class Position
 {
     public int Id { get; set; }
@@ -13,11 +13,18 @@ public class Position
     [StringLength(60, ErrorMessage = "Position name can't be longer than 60 characters")]
     public string Name { get; set; }
     
+    [Required]
     [StringLength(60, ErrorMessage = "Position description can't be longer than 250 characters")]
-    public string? Description { get; set; }
+    public string Description { get; set; }
 
-    public List<Position>? Relations { get; } = [];
-
+    /*public ICollection<Position> RelatedPositions { get; } = [];*/
+    
+    public ICollection<PositionEdge> Targets { get; set; }
+    
+    public ICollection<PositionEdge> Sources { get; set; }
+    
     public int UserId { get; set; }
+    
+    public User User { get; set; }
 
 }

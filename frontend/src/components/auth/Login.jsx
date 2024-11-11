@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import axios from "axios"
 import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { loginUser } from '../redux/auth/authActions.js'
 
 // Form validation
 
@@ -15,42 +17,67 @@ const schema = yup
     })
     .required();
 
+// Axios
+axios.defaults.withCredentials = true;
+
+const config = {
+    headers: {
+      "Content-type": "application/json"
+    },
+};
+
+// const loginURL = "http://localhost:5209/login?useCookies=true&useSessionCookies=true"
+// const userURL = "http://localhost:5209/api/User/userinfo"
+
+// const setCookies = async (data) => {
+//         const cookies = await axios
+//                             .post(loginURL, JSON.stringify(data), config)
+//                             .catch(error => console.log(error));
+//         console.log(cookies);
+//     }
+
+// const setUserInfo = async () => {
+//         const userInfo = await axios
+//                                 .get(userURL, JSON.stringify(), config)
+//                                 .catch(error => console.log(error));
+
+//         console.log(userInfo);
+//     }
 
 const Login = (params) => {
+    
+    const dispatch = useDispatch()
 
     // Form Validation
-
     const { register, handleSubmit, formState } = useForm({
         resolver: yupResolver(schema),
     });
 
     const { errors } = formState
-
+    
 
     // Submit Function
-
+    const { loading, userInfo, error, success } = useSelector(
+        (state) => state.auth
+    )
     const navigate = useNavigate();
 
-    const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
-    };
-
-    const baseURL = "http://localhost:8000/auth/login"
+    useEffect(() => {
+        if (userInfo) {
+            navigate('/dashboard')
+        }
+    }, [navigate, userInfo])
 
     const onSubmit = async (data) => {
-        params.setLoading(true);
+        // params.setLoading(true);
+        
+        dispatch(loginUser(data));
+        
 
-        const tokens = await axios
-                            .post(baseURL, JSON.stringify(data), config)
-                            .catch(error => console.log(error));
+        // params.setLoading(false);
 
-        params.setLoading(false);
-        console.log(tokens);
-        navigate("/dashboard")
+        // navigate("/dashboard")
     }
-
 
     return (
         <div className="card shrink-0 w-full shadow-2xl bg-base-100">

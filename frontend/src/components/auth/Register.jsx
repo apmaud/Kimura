@@ -4,6 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import axios from "axios"
 import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { registerUser } from '../redux/auth/authActions'
 
 // Form Validation 
 
@@ -11,7 +13,7 @@ const schema = yup
     .object()
     .shape({
         email: yup.string().required("Email is required.").email("Email format is not valid."),
-        name: yup.string().required("Username is required."),
+        // name: yup.string().required("Username is required."),
         password: yup.string().required("Password is required.").min(8),
         confirmPassword: yup.string().required("Confirm your password").min(8).oneOf([yup.ref('password')], "The passwords do not match."),
     })
@@ -28,6 +30,11 @@ const Register = (params) => {
     const { errors } = formState
 
     // Submit Function
+    const { loading, userInfo, error, success } = useSelector(
+        (state) => state.auth
+    )
+    const dispatch = useDispatch()
+
 
     const navigate = useNavigate();
 
@@ -37,18 +44,19 @@ const Register = (params) => {
         },
     };
 
-    const baseURL = "http://localhost:8000/auth/register"
+    const baseURL = "http://localhost:5209/register"
 
     const onSubmit = async (data) => {
-        params.setLoading(true)
-        const response = await axios
-                                .post(baseURL, JSON.stringify(data), config)
-                                .catch(error => console.log(error));
-        params.setLoading(false);
+        delete data.confirmPassword;
+        // params.setLoading(true)
+        // const response = await axios
+        //                         .post(baseURL, JSON.stringify(data), config)
+        //                         .catch(error => console.log(error));
+        // params.setLoading(false);
+        dispatch(registerUser(data));
 
-        console.log(response)
 
-        navigate("/dashboard")
+        // navigate("/dashboard")
     }
 
     return (
@@ -63,7 +71,7 @@ const Register = (params) => {
                         <a className="text-xs">{errors.email?.message}</a>
                     </label>
                 </div>
-                <div className="form-control">
+                {/* <div className="form-control">
                     <label className="label">
                         <span className="label-text">Name</span>
                     </label>
@@ -71,7 +79,7 @@ const Register = (params) => {
                     <label className="label">
                         <a className="text-xs">{errors.username?.message}</a>
                     </label>
-                </div>
+                </div> */}
                 <div className="form-control">
                     <label className="label">
                         <span className="label-text">Password</span>

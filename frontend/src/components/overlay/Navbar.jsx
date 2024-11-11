@@ -18,7 +18,6 @@ const Navbar = () => {
       setTheme("light");
     }
   };
-  use
   useEffect(() => {
     localStorage.setItem("theme", theme);
     const localTheme = localStorage.getItem("theme");

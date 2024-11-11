@@ -1,6 +1,11 @@
+using System.Runtime.InteropServices;
+using AutoMapper;
 using backend_csharp.Data;
+using backend_csharp.Dto;
 using backend_csharp.Entities.Models;
 using backend_csharp.Repositories.PositionRepository;
+using backend_csharp.Repositories.UserRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,78 +16,93 @@ namespace backend_csharp.Controllers
     [ApiController]
     public class PositionController : ControllerBase
     {
-        private IPositionRepository _repository;
+        private IPositionRepository _positionRepository;
 
-        public PositionController(IPositionRepository repository)
+
+
+        public PositionController(IPositionRepository positionRepository)
         {
-            this._repository = repository;
+            _positionRepository = positionRepository;
         }
+        
 
-        [HttpGet]
-        public async Task<ActionResult> GetPositions()
+        [HttpGet("all")]
+        public async Task<ActionResult> GetAllPositions()
         {
             try
             {
-                return Ok(await _repository.GetPositions());
+                return Ok(await _positionRepository.GetAllPositions());
             }
             catch (Exception)
             {
                 return StatusCode(500, "Error retrieving from database");
             }
         }
-
-        [HttpPost]
-        public async Task<ActionResult<Position>> AddPosition(Position position)
+        
+        [HttpGet("{userId}")]
+        public async Task<ActionResult> GetPositions(int userId)
         {
             try
             {
-                if (position == null)
-                {
-                    return BadRequest();
-                }
-
-                var createdPosition = await _repository.AddPosition(position);
-
-                return createdPosition;
+                return Ok(await _positionRepository.GetPositionsByUserId(userId));
             }
             catch (Exception)
             {
-                return StatusCode(500, "Error creating new position record");
+                return StatusCode(500, "Error retrieving from database");
             }
+            
+        }
+
+        [HttpPost("{userId}")]
+        public async Task<IActionResult> AddPosition([FromBody] PositionDto positionDto)
+        {
+            if (positionDto == null)
+            {
+                return BadRequest("Position data is required.");
+            }
+            
+
+            if (HasRelations(positionDto))
+            {
+                return await AddPositionWithRelations(positionDto);
+            }
+            
+            return await AddPositionWithoutRelations(positionDto);
+
         }
         
-
-        /*[HttpGet]
-        public IActionResult FindAllPositions()
-        {
-            try
-            {
-                var positions = _repository.FindAll();
-
-                return Ok(positions);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal server error");
-            }
-        }
-        [HttpPost]
-        public IActionResult CreatePosition(Position position)
-        {
-            try
-            {
-            //    _repository.Create(position);
-                Console.Write(position);
-                return Ok(position);
-                //    return Ok("Success");
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Error creating new position record");
-            }
-        }*/
-    
         
+        // Helper functions
+        
+        private bool HasRelations(PositionDto positionDto)
+        {
+            return positionDto.SourceIds.Count > 0 || positionDto.TargetIds.Count > 0;
+        }
+        
+        private async Task<IActionResult> AddPositionWithRelations(PositionDto positionDto)
+        {
+            if (!_positionRepository.AddPositionWithEdges(positionDto))
+            {
+                return ServerError("Error occurred while saving position with relations.");
+            }
 
+            return Ok("Successfully added position with relations.");
+        }
+        
+        private async Task<IActionResult> AddPositionWithoutRelations(PositionDto positionDto)
+        {
+            if (!_positionRepository.AddPosition(positionDto))
+            {
+                return ServerError("Error occurred while saving position without relations.");
+            }
+
+            return Ok("Successfully added position with no relations.");
+        }
+        
+        private IActionResult ServerError(string errorMessage)
+        {
+            ModelState.AddModelError("", errorMessage);
+            return StatusCode(500, ModelState);
+        }
     }
 }

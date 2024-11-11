@@ -1,18 +1,26 @@
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
+using backend_csharp.Dto;
 using backend_csharp.Entities.Models;
 
 namespace backend_csharp.Repositories.PositionRepository;
 
 public interface IPositionRepository
 {
-    Task<IEnumerable<Position>> GetPositions();
+    Task<IEnumerable<Position>> GetAllPositions();
+    Task<Position> GetPositionById(int id);
+    Task<IEnumerable<Position>> GetPositionsByUserId(int id);
+    Task<IEnumerable<PositionEdge>> GetEdgesByUserId(int id);
+    
+    bool AddPosition(PositionDto positionDto);
 
-    Task<Position> AddPosition(Position position);
+    bool AddPositionWithEdges(PositionDto positionDto);
+    
+    bool CreateEdge(Position sourcePosition, Position targetPosition);
 
-    /*IQueryable<Position> FindAll();
-    IQueryable<Position> FindByCondition(Expression<Func<Position, bool>> expression);
-    void Create(Position position);
-    void Update(Position position);
-    void Delete(Position position);*/
+    bool AddRelationToExistingPosition(PositionEdge positionEdge, Position position);
+    
+    bool Save();
+    
 
 }

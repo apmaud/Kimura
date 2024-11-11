@@ -12,7 +12,7 @@ using backend_csharp.Data;
 namespace backend_csharp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240628010816_Initial")]
+    [Migration("20241004162714_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -179,15 +179,19 @@ namespace backend_csharp.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(60)
-                        .HasColumnType("character varying(60)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -236,10 +240,11 @@ namespace backend_csharp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ApplicationUserId")
+                    b.Property<int>("ApplicationUserId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
@@ -248,19 +253,34 @@ namespace backend_csharp.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
-                    b.Property<int?>("PositionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("PositionId");
+                    b.ToTable("Positions");
+                });
 
-                    b.ToTable("position");
+            modelBuilder.Entity("backend_csharp.Entities.Models.PositionEdge", b =>
+                {
+                    b.Property<int>("SourceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("SourceId", "TargetId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("TargetId");
+
+                    b.ToTable("PositionEdges");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -316,23 +336,54 @@ namespace backend_csharp.Migrations
 
             modelBuilder.Entity("backend_csharp.Entities.Models.Position", b =>
                 {
-                    b.HasOne("backend_csharp.Entities.Models.ApplicationUser", null)
+                    b.HasOne("backend_csharp.Entities.Models.ApplicationUser", "ApplicationUser")
                         .WithMany("Positions")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("backend_csharp.Entities.Models.Position", null)
-                        .WithMany("Relations")
-                        .HasForeignKey("PositionId");
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("backend_csharp.Entities.Models.PositionEdge", b =>
+                {
+                    b.HasOne("backend_csharp.Entities.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("PositionEdges")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend_csharp.Entities.Models.Position", "SourcePosition")
+                        .WithMany("Targets")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend_csharp.Entities.Models.Position", "TargetPosition")
+                        .WithMany("Sources")
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("SourcePosition");
+
+                    b.Navigation("TargetPosition");
                 });
 
             modelBuilder.Entity("backend_csharp.Entities.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("PositionEdges");
+
                     b.Navigation("Positions");
                 });
 
             modelBuilder.Entity("backend_csharp.Entities.Models.Position", b =>
                 {
-                    b.Navigation("Relations");
+                    b.Navigation("Sources");
+
+                    b.Navigation("Targets");
                 });
 #pragma warning restore 612, 618
         }
