@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import sun from "../../assets/sun.svg";
 import moon from "../../assets/moon.svg";
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../redux/auth/authSlice';
 
 
 const Navbar = () => {
@@ -11,6 +14,11 @@ const Navbar = () => {
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
   );
 
+  const [cookies, removeCookie] = useCookies(['.AspNetCore.Identity.Application'])
+  const { userInfo, authenticated } = useSelector((state) => state.auth)
+
+  const dispatch = useDispatch();
+
   const handleToggle = (e) => {
     if (e.target.checked) {
       setTheme("dark");
@@ -18,6 +26,14 @@ const Navbar = () => {
       setTheme("light");
     }
   };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    removeCookie('.AspNetCore.Identity.Application');
+    navigate('/auth')
+  }
+
+
   useEffect(() => {
     localStorage.setItem("theme", theme);
     const localTheme = localStorage.getItem("theme");
@@ -27,7 +43,7 @@ const Navbar = () => {
   return (
     <div className="navbar bg-base-200 rounded-md shadow-lg mb-5 sticky top-0 z-30 bg-opacity-90">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">Kimura</a>
+        <a className="btn btn-ghost text-xl" onClick={() => navigate("/")}>Kimura</a>
         <p className="">Jiu-Jitsu</p>
       </div>
       <div className="flex-none">
@@ -47,12 +63,22 @@ const Navbar = () => {
           </li>
           <li>
             <details>
-              <summary>
-                Information
-              </summary>
+              {authenticated ? (
+                <summary>{userInfo.email}</summary>
+                ) : (
+                <summary>Information</summary>
+              )}
               <ul className="p-2 bg-base-100 rounded-t-none">
+                {authenticated ? (
+                <li><a onClick={() => handleLogout()}>Log Out</a></li>
+                ) : (
                 <li><a onClick={() => navigate("/auth")}>Sign In</a></li>
-                <li><a>About</a></li>
+                )}
+                {authenticated ? (
+                <li><a onClick={() => navigate("/dashboard")}>Dashboard</a></li>
+                ) : (
+                <li><a onClick={() => navigate("/about")}>About</a></li>
+                )}
               </ul>
             </details>
           </li>

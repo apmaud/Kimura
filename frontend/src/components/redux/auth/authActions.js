@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { createAsyncThunk, isRejected, isRejectedWithValue } from '@reduxjs/toolkit'
+import { toast } from 'react-toastify';
 
 // Settings
 const baseURL = 'http://localhost:5209'
@@ -9,6 +10,11 @@ const config = {
       "Content-type": "application/json",
     },
 };
+const showToastMessage = () => {
+    toast.success("Success Notification !", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+  };
 
 // Helper functions
 const setCookies = async (data) => {

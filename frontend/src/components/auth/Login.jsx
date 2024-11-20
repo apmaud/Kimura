@@ -6,6 +6,7 @@ import axios from "axios"
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUser } from '../redux/auth/authActions.js'
+import { toast } from 'react-toastify'
 
 // Form validation
 
@@ -57,26 +58,20 @@ const Login = (params) => {
     
 
     // Submit Function
-    const { loading, userInfo, error, success } = useSelector(
+    const { loading, userInfo, error, success, authenticated } = useSelector(
         (state) => state.auth
     )
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (userInfo) {
+        if (authenticated === true) {
             navigate('/dashboard')
         }
     }, [navigate, userInfo])
 
     const onSubmit = async (data) => {
-        // params.setLoading(true);
-        
-        dispatch(loginUser(data));
-        
-
-        // params.setLoading(false);
-
-        // navigate("/dashboard")
+   
+        dispatch(loginUser(data)).then(navigate('/dashboard'))
     }
 
     return (
