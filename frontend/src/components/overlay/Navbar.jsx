@@ -14,7 +14,7 @@ const Navbar = () => {
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
   );
 
-  const [cookies, removeCookie] = useCookies(['.AspNetCore.Identity.Application'])
+  const [cookies, removeCookie] = useCookies('.AspNetCore.Identity.Application')
   const { userInfo, authenticated } = useSelector((state) => state.auth)
 
   const dispatch = useDispatch();
@@ -29,7 +29,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    removeCookie('.AspNetCore.Identity.Application');
+    removeCookie('.AspNetCore.Identity.Application',{path:'/', domain: 'localhost'});
     navigate('/auth')
   }
 

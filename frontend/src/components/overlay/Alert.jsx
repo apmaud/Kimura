@@ -1,21 +1,23 @@
 import React, { useEffect } from 'react'
-import { svgPaths } from '../paths/AlertPaths';
+import { svgPaths, svgFillColors, severityClassNames } from '../paths/AlertPaths';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeAlert } from '../redux/alerts/alertsSlice';
 
 
-const Alert = ({ message = "", severity = "info", timeout = 0, handleDismiss = null, }) => {
-
+const Alert = ({ alert, duration = 5000 }) => {
+    const dispatch = useDispatch();
+    const handleClose = () => {
+        dispatch(removeAlert(alert))
+    }
     useEffect(() => {
-        if (timeout > 0 && handleDismiss) {
-        const timer = setTimeout(() => {
-            handleDismiss();
-        }, timeout * 1000);
-        return () => clearTimeout(timer);
+        const timer = setTimeout(handleClose, duration)
+        return function () {
+            clearTimeout(timer)
         }
-    }, []);
-
+    }, [])
 
     return (
-        <div role="alert" className={`alert alert-${severity}`}>
+        <div role="alert" className={`alert ${severityClassNames[alert.severity]}`}>
             <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 shrink-0 stroke-current"
@@ -25,28 +27,28 @@ const Alert = ({ message = "", severity = "info", timeout = 0, handleDismiss = n
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d={svgPaths[severity]} />
+                d={svgPaths[alert.severity]} />
             </svg>
-            <span>{message}</span>
-            <div>
-                <button className="btn btn-sm" onClick={(e) => {
-                    e.preventDefault();
-                    handleDismiss();
-                }}>
-                    Dismiss
-                </button>
-            </div>
+            <span>{alert.message}</span>
         </div>
     )
 }
 
-const AlertsWrapper = ({ children }) => {
+const AlertsWrapper = (props) => {
+    const { currentAlerts } = useSelector(
+        (state) => state.alerts
+    )
+
     return (
-    //   <div className="fixed top-0 right-0 p-4 z-50 pointer-events-none max-w-sm min-w-fit w-full">
-    //     {children}
-    //   </div>
         <div className="toast">
-            {children}
+            {currentAlerts?.length > 0 &&
+                currentAlerts.map((alert, index) => (
+                    <Alert
+                        key={alert.id + index}
+                        alert={alert}
+                        {...props}
+                    />
+                ))}
         </div>
     );
 };

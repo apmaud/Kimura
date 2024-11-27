@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@reduxjs/toolkit": "^2.2.3",
+    "@xyflow/react": "^12.3.5",
     "aws-amplify": "^6.0.13",
     "axios": "^1.6.8",
     "react": "^18.2.0",

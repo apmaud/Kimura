@@ -6,7 +6,7 @@ import axios from "axios"
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUser } from '../redux/auth/authActions.js'
-import { toast } from 'react-toastify'
+import { addAlert } from '../redux/alerts/alertsSlice.js'
 
 // Form validation
 
@@ -26,24 +26,6 @@ const config = {
       "Content-type": "application/json"
     },
 };
-
-// const loginURL = "http://localhost:5209/login?useCookies=true&useSessionCookies=true"
-// const userURL = "http://localhost:5209/api/User/userinfo"
-
-// const setCookies = async (data) => {
-//         const cookies = await axios
-//                             .post(loginURL, JSON.stringify(data), config)
-//                             .catch(error => console.log(error));
-//         console.log(cookies);
-//     }
-
-// const setUserInfo = async () => {
-//         const userInfo = await axios
-//                                 .get(userURL, JSON.stringify(), config)
-//                                 .catch(error => console.log(error));
-
-//         console.log(userInfo);
-//     }
 
 const Login = (params) => {
     
@@ -71,7 +53,20 @@ const Login = (params) => {
 
     const onSubmit = async (data) => {
    
-        dispatch(loginUser(data)).then(navigate('/dashboard'))
+        dispatch(loginUser(data)).then(navigate('/home'))
+        
+        // dispatch(addAlert({
+        //     message: "Login successful!",
+        //     severity: "success",
+        //     id: Date.now(),
+        // }));
+        // const action = addAlert({
+        //     message: "Login successful!",
+        //     severity: "success",
+        //     id: Date.now(),
+        // });
+        // dispatch(action)
+
     }
 
     return (

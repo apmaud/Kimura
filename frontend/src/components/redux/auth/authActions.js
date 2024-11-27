@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { createAsyncThunk, isRejected, isRejectedWithValue } from '@reduxjs/toolkit'
-import { toast } from 'react-toastify';
+import { addAlert } from '../alerts/alertsSlice';
+
 
 // Settings
 const baseURL = 'http://localhost:5209'
@@ -10,58 +11,69 @@ const config = {
       "Content-type": "application/json",
     },
 };
-const showToastMessage = () => {
-    toast.success("Success Notification !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-  };
 
 // Helper functions
 const setCookies = async (data) => {
     return await axios
-        .post(`${baseURL}/login?useCookies=true&useSessionCookies=true`, JSON.stringify(data), config)
-        .catch(error => console.log(error));
+        .post(`${baseURL}/login?useCookies=true&useSessionCookies=true`, JSON.stringify(data), config);
 }
 const setUserInfo = async () => {
     const { data } = await axios
-                            .get(`${baseURL}/api/User/userinfo`, { withCredentials: true }, config)
-                            .catch(error => console.log(error));
-    console.log(data);
+                            .get(`${baseURL}/api/User/userinfo`, { withCredentials: true }, config);
     return data;
 }
 
 export const registerUser = createAsyncThunk(
     'auth/register',
-    async (data) => {
+    async (data, { dispatch, rejectWithValue}) => {
         try {
             await axios.post(
                 `${baseURL}/register`,
                 JSON.stringify(data), 
                 config
             )
+            dispatch(
+                addAlert({
+                message: "Registration successful!",
+                severity: "success",
+                id: Date.now(),
+            }));
         } catch (error) {
-            if (error.response && error.response.data.message) {
-                return isRejectedWithValue(error.response.data.message)
-            } else {
-                return isRejectedWithValue(error.message)
-            }
+            console.error('Error during registration:', error);
+            dispatch(
+                addAlert({
+                message: error.response?.data?.message || error.message || "An error occurred.",
+                severity: "error",
+                id: Date.now(),
+            }));
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 )
 
 export const loginUser = createAsyncThunk(
     'auth/login',
-    async (data) => {
+    async (data, { dispatch, rejectWithValue}) => {
         try {
             const result = await setCookies(data).then(() => setUserInfo());
+            dispatch(
+                addAlert({
+                message: "Login successful!",
+                severity: "success",
+                id: Date.now(),
+            }));
+            console.log(result)
             return result;
 
         } catch (error) {
-            if (error.response && error.response.data.message) {
-                return isRejectedWithValue(error.response.data.message)
-            } else {
-                return isRejectedWithValue(error.message)
-            }
+            console.error('Error during login:', error);
+            dispatch(
+                addAlert({
+                message: error.response?.data?.message || error.message || "An error occurred.",
+                severity: "error",
+                id: Date.now(),
+            }));
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 )

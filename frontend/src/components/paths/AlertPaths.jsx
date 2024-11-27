@@ -1,9 +1,9 @@
-// export const classNames = {
-//     info: "bg-blue-100 border-blue-500 text-blue-700",
-//     success: "bg-green-100 border-green-500 text-green-700",
-//     warning: "bg-yellow-100 border-yellow-500 text-yellow-700",
-//     error: "bg-red-100 border-red-500 text-red-700",
-// };
+export const severityClassNames = {
+    success: 'alert-success',
+    error: 'alert-error',
+    warning: 'alert-warning',
+    info: 'alert-info',
+};
   
 export const svgPaths = {
     info: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
@@ -12,9 +12,9 @@ export const svgPaths = {
     error: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z",
 };
   
-// export const svgFillColors = {
-//     info: "text-blue-500",
-//     success: "text-green-500",
-//     warning: "text-yellow-500",
-//     error: "text-red-500",
-// };
+export const svgFillColors = {
+    info: "text-blue-500",
+    success: "text-green-500",
+    warning: "text-yellow-500",
+    error: "text-red-500",
+};
